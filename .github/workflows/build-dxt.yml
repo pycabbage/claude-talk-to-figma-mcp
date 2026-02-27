@@ -19,12 +19,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       
     - name: Setup Bun
-      uses: oven-sh/setup-bun@v1
+      uses: oven-sh/setup-bun@v2
       with:
-        bun-version: latest
+        bun-version-file: ".bun-version"
         
     - name: Install dependencies
       run: bun install
@@ -49,14 +49,7 @@ jobs:
         fi
         mv manifest.tmp manifest.json
         echo "✅ Manifest updated to version $VERSION"
-      
-    - name: Install DXT CLI
-      run: |
-        set -e
-        echo "⬇️ Installing DXT CLI v0.2.0..."
-        npm install -g @anthropic-ai/dxt@0.2.0
-        echo "✅ DXT CLI v0.2.0 installed successfully"
-      
+
     - name: Validate build output
       run: |
         set -e
@@ -78,7 +71,7 @@ jobs:
       run: |
         set -e
         echo "📦 Creating DXT package..."
-        dxt pack
+        bunx --bun @anthropic-ai/dxt@latest pack
         echo "✅ DXT package created successfully"
       
     - name: Get package info
@@ -88,7 +81,7 @@ jobs:
         echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
         
     - name: Upload DXT artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.package.outputs.name }}-${{ steps.package.outputs.version }}.dxt
         path: ${{ steps.package.outputs.name }}.dxt
