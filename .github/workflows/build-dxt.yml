@@ -54,15 +54,15 @@ jobs:
       run: |
         set -e
         echo "🔍 Validating build output..."
-        if [ ! -f "dist/talk_to_figma_mcp/server.cjs" ]; then
+        if [ ! -f "dist/talk_to_figma_mcp/server.js" ]; then
           echo "❌ Error: Entry point not found after build"
-          echo "Expected: dist/talk_to_figma_mcp/server.cjs"
+          echo "Expected: dist/talk_to_figma_mcp/server.js"
           ls -la dist/ || echo "dist/ directory not found"
           exit 1
         fi
-        if [ ! -f "dist/socket.cjs" ]; then
+        if [ ! -f "dist/socket.js" ]; then
           echo "❌ Error: Socket server not found after build"
-          echo "Expected: dist/socket.cjs"
+          echo "Expected: dist/socket.js"
           exit 1
         fi
         echo "✅ Build output validated successfully"
