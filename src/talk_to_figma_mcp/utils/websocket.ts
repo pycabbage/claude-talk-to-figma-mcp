@@ -1,8 +1,19 @@
-import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
+import WebSocket from "ws";
+import {
+  defaultPort,
+  reconnectInterval,
+  serverUrl,
+  WS_URL,
+} from "../config/config";
+import {
+  type CommandProgressUpdate,
+  type FigmaCommand,
+  FigmaResponse,
+  type PendingRequest,
+  type ProgressMessage,
+} from "../types";
 import { logger } from "./logger";
-import { serverUrl, defaultPort, WS_URL, reconnectInterval } from "../config/config";
-import { FigmaCommand, FigmaResponse, CommandProgressUpdate, PendingRequest, ProgressMessage } from "../types";
 
 // WebSocket connection and request tracking
 let ws: WebSocket | null = null;
@@ -18,39 +29,42 @@ const pendingRequests = new Map<string, PendingRequest>();
 export function connectToFigma(port: number = defaultPort) {
   // If already connected, do nothing
   if (ws && ws.readyState === WebSocket.OPEN) {
-    logger.info('Already connected to Figma');
+    logger.info("Already connected to Figma");
     return;
   }
 
   // If connection is in progress (CONNECTING state), wait
   if (ws && ws.readyState === WebSocket.CONNECTING) {
-    logger.info('Connection to Figma is already in progress');
+    logger.info("Connection to Figma is already in progress");
     return;
   }
 
   // If there's an existing socket in a closing state, clean it up
-  if (ws && (ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)) {
+  if (
+    ws &&
+    (ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)
+  ) {
     ws.removeAllListeners();
     ws = null;
   }
 
-  const wsUrl = serverUrl === 'localhost' ? `${WS_URL}:${port}` : WS_URL;
+  const wsUrl = serverUrl === "localhost" ? `${WS_URL}:${port}` : WS_URL;
   logger.info(`Connecting to Figma socket server at ${wsUrl}...`);
-  
+
   try {
     ws = new WebSocket(wsUrl);
-    
+
     // Add connection timeout
     const connectionTimeout = setTimeout(() => {
       if (ws && ws.readyState === WebSocket.CONNECTING) {
-        logger.error('Connection to Figma timed out');
+        logger.error("Connection to Figma timed out");
         ws.terminate();
       }
     }, 10000); // 10 second connection timeout
-    
-    ws.on('open', () => {
+
+    ws.on("open", () => {
       clearTimeout(connectionTimeout);
-      logger.info('Connected to Figma socket server');
+      logger.info("Connected to Figma socket server");
       // Reset channel on new connection
       currentChannel = null;
     });
@@ -60,9 +74,9 @@ export function connectToFigma(port: number = defaultPort) {
         const json = JSON.parse(data) as ProgressMessage;
 
         // Handle progress updates
-        if (json.type === 'progress_update') {
+        if (json.type === "progress_update") {
           const progressData = json.message.data as CommandProgressUpdate;
-          const requestId = json.id || '';
+          const requestId = json.id || "";
 
           if (requestId && pendingRequests.has(requestId)) {
             const request = pendingRequests.get(requestId)!;
@@ -76,23 +90,32 @@ export function connectToFigma(port: number = defaultPort) {
             // Create a new timeout with extended time for long operations
             request.timeout = setTimeout(() => {
               if (pendingRequests.has(requestId)) {
-                logger.error(`Request ${requestId} timed out after extended period of inactivity`);
+                logger.error(
+                  `Request ${requestId} timed out after extended period of inactivity`,
+                );
                 pendingRequests.delete(requestId);
-                request.reject(new Error('Request to Figma timed out'));
+                request.reject(new Error("Request to Figma timed out"));
               }
             }, 120000); // 120 second timeout for inactivity during progress updates
 
             // Log progress
-            logger.info(`Progress update for ${progressData.commandType}: ${progressData.progress}% - ${progressData.message}`);
+            logger.info(
+              `Progress update for ${progressData.commandType}: ${progressData.progress}% - ${progressData.message}`,
+            );
 
             // For completed updates, we could resolve the request early if desired
-            if (progressData.status === 'completed' && progressData.progress === 100) {
+            if (
+              progressData.status === "completed" &&
+              progressData.progress === 100
+            ) {
               // Optionally resolve early with partial data
               // request.resolve(progressData.payload);
               // pendingRequests.delete(requestId);
 
               // Instead, just log the completion, wait for final result from Figma
-              logger.info(`Operation ${progressData.commandType} completed, waiting for final result`);
+              logger.info(
+                `Operation ${progressData.commandType} completed, waiting for final result`,
+              );
             }
           }
           return;
@@ -108,15 +131,13 @@ export function connectToFigma(port: number = defaultPort) {
         }
 
         // Handle response to a request (success or error)
-        if (
-          myResponse.id &&
-          pendingRequests.has(myResponse.id)
-        ) {
+        if (myResponse.id && pendingRequests.has(myResponse.id)) {
           const request = pendingRequests.get(myResponse.id)!;
           clearTimeout(request.timeout);
 
           // Check for error at root level or nested inside result
-          const error = myResponse.error ?? (myResponse.result && myResponse.result.error);
+          const error =
+            myResponse.error ?? (myResponse.result && myResponse.result.error);
 
           if (error) {
             logger.error(`Error from Figma: ${error}`);
@@ -128,38 +149,52 @@ export function connectToFigma(port: number = defaultPort) {
           pendingRequests.delete(myResponse.id);
         } else {
           // Handle broadcast messages or events
-          logger.info(`Received broadcast message: ${JSON.stringify(myResponse)}`);
+          logger.info(
+            `Received broadcast message: ${JSON.stringify(myResponse)}`,
+          );
         }
       } catch (error) {
-        logger.error(`Error parsing message: ${error instanceof Error ? error.message : String(error)}`);
+        logger.error(
+          `Error parsing message: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     });
 
-    ws.on('error', (error) => {
+    ws.on("error", (error) => {
       logger.error(`Socket error: ${error}`);
       // Don't attempt to reconnect here, let the close handler do it
     });
 
-    ws.on('close', (code, reason) => {
+    ws.on("close", (code, reason) => {
       clearTimeout(connectionTimeout);
-      logger.info(`Disconnected from Figma socket server with code ${code} and reason: ${reason || 'No reason provided'}`);
+      logger.info(
+        `Disconnected from Figma socket server with code ${code} and reason: ${reason || "No reason provided"}`,
+      );
       ws = null;
 
       // Reject all pending requests
       for (const [id, request] of pendingRequests.entries()) {
         clearTimeout(request.timeout);
-        request.reject(new Error(`Connection closed with code ${code}: ${reason || 'No reason provided'}`));
+        request.reject(
+          new Error(
+            `Connection closed with code ${code}: ${reason || "No reason provided"}`,
+          ),
+        );
         pendingRequests.delete(id);
       }
 
       // Attempt to reconnect with exponential backoff
-      const backoff = Math.min(30000, reconnectInterval * Math.pow(1.5, Math.floor(Math.random() * 5))); // Max 30s
-      logger.info(`Attempting to reconnect in ${backoff/1000} seconds...`);
+      const backoff = Math.min(
+        30000,
+        reconnectInterval * 1.5 ** Math.floor(Math.random() * 5),
+      ); // Max 30s
+      logger.info(`Attempting to reconnect in ${backoff / 1000} seconds...`);
       setTimeout(() => connectToFigma(port), backoff);
     });
-    
   } catch (error) {
-    logger.error(`Failed to create WebSocket connection: ${error instanceof Error ? error.message : String(error)}`);
+    logger.error(
+      `Failed to create WebSocket connection: ${error instanceof Error ? error.message : String(error)}`,
+    );
     // Attempt to reconnect after a delay
     setTimeout(() => connectToFigma(port), reconnectInterval);
   }
@@ -184,14 +219,19 @@ export async function joinChannel(channelName: string): Promise<void> {
       logger.info(`Joined channel: ${channelName}`);
     } catch (verificationError) {
       currentChannel = null;
-      const errorMsg = verificationError instanceof Error
-        ? verificationError.message
-        : String(verificationError);
+      const errorMsg =
+        verificationError instanceof Error
+          ? verificationError.message
+          : String(verificationError);
       logger.error(`Failed to verify channel ${channelName}: ${errorMsg}`);
-      throw new Error(`Failed to verify connection to channel "${channelName}". The Figma plugin may not be connected to this channel.`);
+      throw new Error(
+        `Failed to verify connection to channel "${channelName}". The Figma plugin may not be connected to this channel.`,
+      );
     }
   } catch (error) {
-    logger.error(`Failed to join channel: ${error instanceof Error ? error.message : String(error)}`);
+    logger.error(
+      `Failed to join channel: ${error instanceof Error ? error.message : String(error)}`,
+    );
     throw error;
   }
 }
@@ -214,7 +254,7 @@ export function getCurrentChannel(): string | null {
 export function sendCommandToFigma(
   command: FigmaCommand,
   params: unknown = {},
-  timeoutMs: number = 60000
+  timeoutMs: number = 60000,
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
     // If not connected, try to connect first
@@ -252,8 +292,10 @@ export function sendCommandToFigma(
     const timeout = setTimeout(() => {
       if (pendingRequests.has(id)) {
         pendingRequests.delete(id);
-        logger.error(`Request ${id} to Figma timed out after ${timeoutMs / 1000} seconds`);
-        reject(new Error('Request to Figma timed out'));
+        logger.error(
+          `Request ${id} to Figma timed out after ${timeoutMs / 1000} seconds`,
+        );
+        reject(new Error("Request to Figma timed out"));
       }
     }, timeoutMs);
 
@@ -262,7 +304,7 @@ export function sendCommandToFigma(
       resolve,
       reject,
       timeout,
-      lastActivity: Date.now()
+      lastActivity: Date.now(),
     });
 
     // Send the request

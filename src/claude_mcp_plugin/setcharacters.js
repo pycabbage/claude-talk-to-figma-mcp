@@ -27,7 +27,7 @@ export const setCharacters = async (node, characters, options) => {
           fontHashTree[key] = fontHashTree[key] ? fontHashTree[key] + 1 : 1;
         }
         const prevailedTreeItem = Object.entries(fontHashTree).sort(
-          (a, b) => b[1] - a[1]
+          (a, b) => b[1] - a[1],
         )[0];
         const [family, style] = prevailedTreeItem[0].split("::");
         const prevailedFont = {
@@ -54,7 +54,7 @@ export const setCharacters = async (node, characters, options) => {
   } catch (err) {
     console.warn(
       `Failed to load "${node.fontName["family"]} ${node.fontName["style"]}" font and replaced with fallback "${fallbackFont.family} ${fallbackFont.style}"`,
-      err
+      err,
     );
     await figma.loadFontAsync(fallbackFont);
     node.fontName = fallbackFont;
@@ -71,7 +71,7 @@ export const setCharacters = async (node, characters, options) => {
 const setCharactersWithStrictMatchFont = async (
   node,
   characters,
-  fallbackFont
+  fallbackFont,
 ) => {
   const fontHashTree = {};
   for (let i = 1; i < node.characters.length; i++) {
@@ -102,7 +102,7 @@ const setCharactersWithStrictMatchFont = async (
       };
       await figma.loadFontAsync(matchedFont);
       return node.setRangeFontName(Number(start), Number(end), matchedFont);
-    })
+    }),
   );
   return true;
 };
@@ -130,24 +130,24 @@ const buildLinearOrder = (node) => {
   newLinesPos.forEach(([newLinesRangeStart, newLinesRangeEnd], n) => {
     const newLinesRangeFont = node.getRangeFontName(
       newLinesRangeStart,
-      newLinesRangeEnd
+      newLinesRangeEnd,
     );
     if (newLinesRangeFont === figma.mixed) {
       const spacesPos = getDelimiterPos(
         node.characters,
         " ",
         newLinesRangeStart,
-        newLinesRangeEnd
+        newLinesRangeEnd,
       );
       spacesPos.forEach(([spacesRangeStart, spacesRangeEnd], s) => {
         const spacesRangeFont = node.getRangeFontName(
           spacesRangeStart,
-          spacesRangeEnd
+          spacesRangeEnd,
         );
         if (spacesRangeFont === figma.mixed) {
           const spacesRangeFont = node.getRangeFontName(
             spacesRangeStart,
-            spacesRangeStart[0]
+            spacesRangeStart[0],
           );
           fontTree.push({
             start: spacesRangeStart,
@@ -181,12 +181,12 @@ const buildLinearOrder = (node) => {
 const setCharactersWithSmartMatchFont = async (
   node,
   characters,
-  fallbackFont
+  fallbackFont,
 ) => {
   const rangeTree = buildLinearOrder(node);
   const fontsToLoad = uniqBy(
     rangeTree,
-    ({ family, style }) => `${family}::${style}`
+    ({ family, style }) => `${family}::${style}`,
   ).map(({ family, style }) => ({
     family,
     style,

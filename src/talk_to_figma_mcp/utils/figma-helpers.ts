@@ -13,7 +13,7 @@ export function rgbaToHex(color: any): string {
   const b = Math.round(color.b * 255);
   const a = Math.round(color.a * 255);
 
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}${a === 255 ? '' : a.toString(16).padStart(2, '0')}`;
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}${a === 255 ? "" : a.toString(16).padStart(2, "0")}`;
 }
 
 /**
@@ -44,16 +44,18 @@ export function filterFigmaNode(node: any) {
 
       // Process gradientStops if present
       if (processedFill.gradientStops) {
-        processedFill.gradientStops = processedFill.gradientStops.map((stop: any) => {
-          const processedStop = { ...stop };
-          // Convert color to hex if present
-          if (processedStop.color) {
-            processedStop.color = rgbaToHex(processedStop.color);
-          }
-          // Remove boundVariables
-          delete processedStop.boundVariables;
-          return processedStop;
-        });
+        processedFill.gradientStops = processedFill.gradientStops.map(
+          (stop: any) => {
+            const processedStop = { ...stop };
+            // Convert color to hex if present
+            if (processedStop.color) {
+              processedStop.color = rgbaToHex(processedStop.color);
+            }
+            // Remove boundVariables
+            delete processedStop.boundVariables;
+            return processedStop;
+          },
+        );
       }
 
       // Convert solid fill colors to hex
@@ -102,7 +104,7 @@ export function filterFigmaNode(node: any) {
       fontSize: node.style.fontSize,
       textAlignHorizontal: node.style.textAlignHorizontal,
       letterSpacing: node.style.letterSpacing,
-      lineHeightPx: node.style.lineHeightPx
+      lineHeightPx: node.style.lineHeightPx,
     };
   }
 
@@ -122,11 +124,11 @@ export function globalToLocal(
   globalX: number,
   globalY: number,
   parentGlobalX: number = 0,
-  parentGlobalY: number = 0
+  parentGlobalY: number = 0,
 ): { x: number; y: number } {
   return {
     x: globalX - parentGlobalX,
-    y: globalY - parentGlobalY
+    y: globalY - parentGlobalY,
   };
 }
 
@@ -137,11 +139,11 @@ export function localToGlobal(
   localX: number,
   localY: number,
   parentGlobalX: number = 0,
-  parentGlobalY: number = 0
+  parentGlobalY: number = 0,
 ): { x: number; y: number } {
   return {
     x: localX + parentGlobalX,
-    y: localY + parentGlobalY
+    y: localY + parentGlobalY,
   };
 }
 
@@ -160,7 +162,7 @@ export function processFigmaNodeResponse(result: unknown): any {
   if ("id" in resultObj && typeof resultObj.id === "string") {
     // It appears to be a node response, log the details
     console.info(
-      `Processed Figma node: ${resultObj.name || "Unknown"} (ID: ${resultObj.id})`
+      `Processed Figma node: ${resultObj.name || "Unknown"} (ID: ${resultObj.id})`,
     );
 
     if ("x" in resultObj && "y" in resultObj) {

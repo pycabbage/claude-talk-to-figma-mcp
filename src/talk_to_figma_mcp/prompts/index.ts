@@ -3,7 +3,7 @@
  * Prompts provide guidance to Claude on how to work with Figma designs effectively.
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all prompts with the MCP server
@@ -95,7 +95,7 @@ Example Login Screen Structure:
         ],
         description: "Best practices for working with Figma designs",
       };
-    }
+    },
   );
 
   // Read Design Strategy Prompt
@@ -124,7 +124,7 @@ Example Login Screen Structure:
         ],
         description: "Best practices for reading Figma designs",
       };
-    }
+    },
   );
 
   // Text Replacement Strategy Prompt
@@ -258,7 +258,7 @@ Remember that text is never just text—it's a core design element that must wor
         ],
         description: "Systematic approach for replacing text in Figma designs",
       };
-    }
+    },
   );
 }
 
@@ -270,7 +270,7 @@ export function registerDesignStrategyPrompt(server: McpServer): void {
     (extra) => {
       // Implementation is the same as above
       // This function is exported for individual usage if needed
-    }
+    },
   );
 }
 
@@ -281,7 +281,7 @@ export function registerReadDesignStrategyPrompt(server: McpServer): void {
     (extra) => {
       // Implementation is the same as above
       // This function is exported for individual usage if needed
-    }
+    },
   );
 }
 
@@ -292,6 +292,6 @@ export function registerTextReplacementStrategyPrompt(server: McpServer): void {
     (extra) => {
       // Implementation is the same as above
       // This function is exported for individual usage if needed
-    }
+    },
   );
 }

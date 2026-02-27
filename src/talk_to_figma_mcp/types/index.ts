@@ -7,10 +7,10 @@ export interface FigmaResponse {
 
 // Define interface for command progress updates
 export interface CommandProgressUpdate {
-  type: 'command_progress';
+  type: "command_progress";
   commandId: string;
   commandType: string;
-  status: 'started' | 'in_progress' | 'completed' | 'error';
+  status: "started" | "in_progress" | "completed" | "error";
   progress: number;
   totalItems: number;
   processedItems: number;

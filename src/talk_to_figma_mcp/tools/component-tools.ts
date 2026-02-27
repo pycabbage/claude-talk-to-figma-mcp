@@ -1,5 +1,5 @@
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { sendCommandToFigma } from "../utils/websocket";
 
 /**
@@ -14,8 +14,12 @@ export function registerComponentTools(server: McpServer): void {
     "Create an instance of a component in Figma",
     {
       componentKey: z.string().describe("Key of the component to instantiate"),
-      x: z.number().describe("X position (local coordinates, relative to parent)"),
-      y: z.number().describe("Y position (local coordinates, relative to parent)"),
+      x: z
+        .number()
+        .describe("X position (local coordinates, relative to parent)"),
+      y: z
+        .number()
+        .describe("Y position (local coordinates, relative to parent)"),
     },
     async ({ componentKey, x, y }) => {
       try {
@@ -30,9 +34,9 @@ export function registerComponentTools(server: McpServer): void {
             {
               type: "text",
               text: JSON.stringify(typedResult),
-            }
-          ]
-        }
+            },
+          ],
+        };
       } catch (error) {
         return {
           content: [
@@ -43,7 +47,7 @@ export function registerComponentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Create Component from Node Tool
@@ -51,8 +55,13 @@ export function registerComponentTools(server: McpServer): void {
     "create_component_from_node",
     "Convert an existing node (frame, group, etc.) into a reusable component in Figma",
     {
-      nodeId: z.string().describe("The ID of the node to convert into a component"),
-      name: z.string().optional().describe("Optional new name for the component"),
+      nodeId: z
+        .string()
+        .describe("The ID of the node to convert into a component"),
+      name: z
+        .string()
+        .optional()
+        .describe("Optional new name for the component"),
     },
     async ({ nodeId, name }) => {
       try {
@@ -66,9 +75,9 @@ export function registerComponentTools(server: McpServer): void {
             {
               type: "text",
               text: `Created component "${typedResult.name}" with ID: ${typedResult.id} and key: ${typedResult.key}. You can now create instances of this component using the key.`,
-            }
-          ]
-        }
+            },
+          ],
+        };
       } catch (error) {
         return {
           content: [
@@ -79,7 +88,7 @@ export function registerComponentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Create Component Set from Components Tool
@@ -87,8 +96,15 @@ export function registerComponentTools(server: McpServer): void {
     "create_component_set",
     "Create a component set (variants) from multiple component nodes in Figma",
     {
-      componentIds: z.array(z.string()).describe("Array of component node IDs to combine into a component set"),
-      name: z.string().optional().describe("Optional name for the component set"),
+      componentIds: z
+        .array(z.string())
+        .describe(
+          "Array of component node IDs to combine into a component set",
+        ),
+      name: z
+        .string()
+        .optional()
+        .describe("Optional name for the component set"),
     },
     async ({ componentIds, name }) => {
       try {
@@ -96,15 +112,20 @@ export function registerComponentTools(server: McpServer): void {
           componentIds,
           name,
         });
-        const typedResult = result as { id: string; name: string; key: string; variantCount: number };
+        const typedResult = result as {
+          id: string;
+          name: string;
+          key: string;
+          variantCount: number;
+        };
         return {
           content: [
             {
               type: "text",
               text: `Created component set "${typedResult.name}" with ID: ${typedResult.id}, key: ${typedResult.key}, containing ${typedResult.variantCount} variants.`,
-            }
-          ]
-        }
+            },
+          ],
+        };
       } catch (error) {
         return {
           content: [
@@ -115,7 +136,7 @@ export function registerComponentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Set Instance Variant Tool
@@ -124,7 +145,11 @@ export function registerComponentTools(server: McpServer): void {
     "Change the variant properties of a component instance without recreating it. This preserves instance overrides and is more efficient than delete + create workflow.",
     {
       nodeId: z.string().describe("The ID of the instance node to modify"),
-      properties: z.record(z.string()).describe("Variant properties to set as key-value pairs (e.g., { \"State\": \"Hover\", \"Size\": \"Large\" })"),
+      properties: z
+        .record(z.string())
+        .describe(
+          'Variant properties to set as key-value pairs (e.g., { "State": "Hover", "Size": "Large" })',
+        ),
     },
     async ({ nodeId, properties }) => {
       try {
@@ -132,15 +157,19 @@ export function registerComponentTools(server: McpServer): void {
           nodeId,
           properties,
         });
-        const typedResult = result as { id: string; name: string; properties: Record<string, string> };
+        const typedResult = result as {
+          id: string;
+          name: string;
+          properties: Record<string, string>;
+        };
         return {
           content: [
             {
               type: "text",
               text: `Successfully changed variant properties of instance "${typedResult.name}" (ID: ${typedResult.id}). New properties: ${JSON.stringify(typedResult.properties)}`,
-            }
-          ]
-        }
+            },
+          ],
+        };
       } catch (error) {
         return {
           content: [
@@ -151,6 +180,6 @@ export function registerComponentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 }

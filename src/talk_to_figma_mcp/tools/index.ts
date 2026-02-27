@@ -1,11 +1,11 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { registerDocumentTools } from "./document-tools";
-import { registerCreationTools } from "./creation-tools";
-import { registerModificationTools } from "./modification-tools";
-import { registerTextTools } from "./text-tools";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerComponentTools } from "./component-tools";
+import { registerCreationTools } from "./creation-tools";
+import { registerDocumentTools } from "./document-tools";
 import { registerImageTools } from "./image-tools";
+import { registerModificationTools } from "./modification-tools";
 import { registerSvgTools } from "./svg-tools";
+import { registerTextTools } from "./text-tools";
 import { registerVariableTools } from "./variable-tools";
 
 /**
@@ -33,5 +33,5 @@ export {
   registerComponentTools,
   registerImageTools,
   registerSvgTools,
-  registerVariableTools
+  registerVariableTools,
 };

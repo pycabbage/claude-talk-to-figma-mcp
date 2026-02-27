@@ -11,16 +11,13 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
 // Import configuration
 import { SERVER_CONFIG } from "./config/config";
-
+// Import prompts registration function from prompts/index.ts
+import { registerPrompts } from "./prompts";
+// Import tools registration function from tools/index.ts
+import { registerTools } from "./tools";
 // Import utilities
 import { logger } from "./utils/logger";
 import { connectToFigma } from "./utils/websocket";
-
-// Import tools registration function from tools/index.ts
-import { registerTools } from "./tools";
-
-// Import prompts registration function from prompts/index.ts
-import { registerPrompts } from "./prompts";
 
 /**
  * Initialize and start the MCP server
@@ -29,34 +26,39 @@ async function main() {
   try {
     // Create MCP server instance with configuration
     const server = new McpServer(SERVER_CONFIG);
-    
+
     // Register all tools with the server
     registerTools(server);
-    
+
     // Register all prompts with the server
     registerPrompts(server);
-    
+
     // Try to connect to Figma socket server
     try {
       connectToFigma();
     } catch (error) {
-      logger.warn(`Could not connect to Figma initially: ${error instanceof Error ? error.message : String(error)}`);
-      logger.warn('Will try to connect when the first command is sent');
+      logger.warn(
+        `Could not connect to Figma initially: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      logger.warn("Will try to connect when the first command is sent");
     }
 
     // Start the MCP server with stdio transport
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    logger.info('FigmaMCP server running on stdio');
+    logger.info("FigmaMCP server running on stdio");
   } catch (error) {
-    logger.error(`Error starting FigmaMCP server: ${error instanceof Error ? error.message : String(error)}`);
+    logger.error(
+      `Error starting FigmaMCP server: ${error instanceof Error ? error.message : String(error)}`,
+    );
     process.exit(1);
   }
 }
 
 // Run the server
-main().catch(error => {
-  logger.error(`Error starting FigmaMCP server: ${error instanceof Error ? error.message : String(error)}`);
+main().catch((error) => {
+  logger.error(
+    `Error starting FigmaMCP server: ${error instanceof Error ? error.message : String(error)}`,
+  );
   process.exit(1);
 });
-

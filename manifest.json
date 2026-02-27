@@ -16,20 +16,14 @@
   },
   "icon": "images/claude-talk-to-figma.png",
   "compatibility": {
-    "platforms": [
-      "darwin",
-      "linux",
-      "win32"
-    ]
+    "platforms": ["darwin", "linux", "win32"]
   },
   "server": {
     "type": "node",
     "entry_point": "dist/talk_to_figma_mcp/server.cjs",
     "mcp_config": {
       "command": "node",
-      "args": [
-        "${__dirname}/dist/talk_to_figma_mcp/server.cjs"
-      ],
+      "args": ["${__dirname}/dist/talk_to_figma_mcp/server.cjs"],
       "env": {
         "NODE_ENV": "production"
       }

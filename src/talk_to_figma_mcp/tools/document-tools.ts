@@ -1,7 +1,7 @@
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { sendCommandToFigma, joinChannel } from "../utils/websocket.js";
 import { filterFigmaNode } from "../utils/figma-helpers.js";
+import { joinChannel, sendCommandToFigma } from "../utils/websocket.js";
 
 /**
  * Register document-related tools to the MCP server
@@ -20,9 +20,9 @@ export function registerDocumentTools(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result)
-            }
-          ]
+              text: JSON.stringify(result),
+            },
+          ],
         };
       } catch (error) {
         return {
@@ -34,7 +34,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Selection Tool
@@ -49,9 +49,9 @@ export function registerDocumentTools(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result)
-            }
-          ]
+              text: JSON.stringify(result),
+            },
+          ],
         };
       } catch (error) {
         return {
@@ -63,7 +63,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Node Info Tool
@@ -71,25 +71,30 @@ export function registerDocumentTools(server: McpServer): void {
     "get_node_info",
     "Get detailed information about a specific node in Figma",
     {
-      nodeId: z.string().describe("The ID of the node to get information about"),
+      nodeId: z
+        .string()
+        .describe("The ID of the node to get information about"),
     },
     async ({ nodeId }) => {
       try {
         const result = await sendCommandToFigma("get_node_info", { nodeId });
         const filtered = filterFigmaNode(result);
-        const coordinateNote = filtered.absoluteBoundingBox && filtered.localPosition
-          ? "absoluteBoundingBox contains global coordinates (relative to canvas). localPosition contains local coordinates (relative to parent, use these for move_node)."
-          : undefined;
+        const coordinateNote =
+          filtered.absoluteBoundingBox && filtered.localPosition
+            ? "absoluteBoundingBox contains global coordinates (relative to canvas). localPosition contains local coordinates (relative to parent, use these for move_node)."
+            : undefined;
 
-        const payload = coordinateNote ? { ...filtered, _note: coordinateNote } : filtered;
+        const payload = coordinateNote
+          ? { ...filtered, _note: coordinateNote }
+          : filtered;
 
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(payload)
-            }
-          ]
+              text: JSON.stringify(payload),
+            },
+          ],
         };
       } catch (error) {
         return {
@@ -101,7 +106,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Nodes Info Tool
@@ -109,30 +114,38 @@ export function registerDocumentTools(server: McpServer): void {
     "get_nodes_info",
     "Get detailed information about multiple nodes in Figma",
     {
-      nodeIds: z.array(z.string()).describe("Array of node IDs to get information about")
+      nodeIds: z
+        .array(z.string())
+        .describe("Array of node IDs to get information about"),
     },
     async ({ nodeIds }) => {
       try {
-        const results = await sendCommandToFigma('get_nodes_info', { nodeIds }) as any[];
+        const results = (await sendCommandToFigma("get_nodes_info", {
+          nodeIds,
+        })) as any[];
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(results.map((result) => filterFigmaNode(result.document || result.info)))
-            }
-          ]
+              text: JSON.stringify(
+                results.map((result) =>
+                  filterFigmaNode(result.document || result.info),
+                ),
+              ),
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error getting nodes info: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error getting nodes info: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Get Styles Tool
@@ -147,9 +160,9 @@ export function registerDocumentTools(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result)
-            }
-          ]
+              text: JSON.stringify(result),
+            },
+          ],
         };
       } catch (error) {
         return {
@@ -161,7 +174,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Get Local Components Tool
@@ -176,9 +189,9 @@ export function registerDocumentTools(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result)
-            }
-          ]
+              text: JSON.stringify(result),
+            },
+          ],
         };
       } catch (error) {
         return {
@@ -190,7 +203,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Get Remote Components Tool
@@ -205,21 +218,21 @@ export function registerDocumentTools(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2)
-            }
-          ]
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error getting remote components: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error getting remote components: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Text Node Scanning Tool
@@ -240,18 +253,18 @@ export function registerDocumentTools(server: McpServer): void {
         // Use the plugin's scan_text_nodes function with chunking flag
         const result = await sendCommandToFigma("scan_text_nodes", {
           nodeId,
-          useChunking: true,  // Enable chunking on the plugin side
-          chunkSize: 10       // Process 10 nodes at a time
+          useChunking: true, // Enable chunking on the plugin side
+          chunkSize: 10, // Process 10 nodes at a time
         });
 
         // If the result indicates chunking was used, format the response accordingly
-        if (result && typeof result === 'object' && 'chunks' in result) {
+        if (result && typeof result === "object" && "chunks" in result) {
           const typedResult = result as {
-            success: boolean,
-            totalNodes: number,
-            processedNodes: number,
-            chunks: number,
-            textNodes: Array<any>
+            success: boolean;
+            totalNodes: number;
+            processedNodes: number;
+            chunks: number;
+            textNodes: Array<any>;
           };
 
           const summaryText = `
@@ -265,12 +278,12 @@ export function registerDocumentTools(server: McpServer): void {
               initialStatus,
               {
                 type: "text" as const,
-                text: summaryText
+                text: summaryText,
               },
               {
                 type: "text" as const,
-                text: JSON.stringify(typedResult.textNodes, null, 2)
-              }
+                text: JSON.stringify(typedResult.textNodes, null, 2),
+              },
             ],
           };
         }
@@ -295,7 +308,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Join Channel Tool
@@ -344,7 +357,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Export Node as Image Tool
@@ -361,11 +374,15 @@ export function registerDocumentTools(server: McpServer): void {
     },
     async ({ nodeId, format, scale }) => {
       try {
-        const result = await sendCommandToFigma("export_node_as_image", {
-          nodeId,
-          format: format || "PNG",
-          scale: scale || 1,
-        }, 120000); // 120 second timeout for image export
+        const result = await sendCommandToFigma(
+          "export_node_as_image",
+          {
+            nodeId,
+            format: format || "PNG",
+            scale: scale || 1,
+          },
+          120000,
+        ); // 120 second timeout for image export
         const typedResult = result as { imageData: string; mimeType: string };
 
         return {
@@ -387,7 +404,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Create Page Tool
@@ -419,7 +436,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Delete Page Tool
@@ -451,7 +468,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Rename Page Tool
@@ -464,8 +481,15 @@ export function registerDocumentTools(server: McpServer): void {
     },
     async ({ pageId, name }) => {
       try {
-        const result = await sendCommandToFigma("rename_page", { pageId, name });
-        const typedResult = result as { id: string; name: string; oldName: string };
+        const result = await sendCommandToFigma("rename_page", {
+          pageId,
+          name,
+        });
+        const typedResult = result as {
+          id: string;
+          name: string;
+          oldName: string;
+        };
         return {
           content: [
             {
@@ -484,7 +508,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Get Pages Tool
@@ -513,7 +537,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Set Current Page Tool
@@ -545,7 +569,7 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Duplicate Page Tool
@@ -554,12 +578,24 @@ export function registerDocumentTools(server: McpServer): void {
     "Duplicate an existing page in the Figma document, creating a complete copy of all its contents",
     {
       pageId: z.string().describe("ID of the page to duplicate"),
-      name: z.string().optional().describe("Optional name for the duplicated page (defaults to 'Original Name (Copy)')"),
+      name: z
+        .string()
+        .optional()
+        .describe(
+          "Optional name for the duplicated page (defaults to 'Original Name (Copy)')",
+        ),
     },
     async ({ pageId, name }) => {
       try {
-        const result = await sendCommandToFigma("duplicate_page", { pageId, name });
-        const typedResult = result as { id: string; name: string; originalName: string };
+        const result = await sendCommandToFigma("duplicate_page", {
+          pageId,
+          name,
+        });
+        const typedResult = result as {
+          id: string;
+          name: string;
+          originalName: string;
+        };
         return {
           content: [
             {
@@ -578,6 +614,6 @@ export function registerDocumentTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 }

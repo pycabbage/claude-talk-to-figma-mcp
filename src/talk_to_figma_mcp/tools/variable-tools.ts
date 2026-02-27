@@ -1,5 +1,5 @@
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { sendCommandToFigma } from "../utils/websocket";
 
 /**
@@ -35,7 +35,7 @@ export function registerVariableTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Set Variable Tool
@@ -43,14 +43,40 @@ export function registerVariableTools(server: McpServer): void {
     "set_variable",
     "Create or update a variable in a Figma variable collection. Creates the collection if collectionName is provided and it doesn't exist.",
     {
-      collectionId: z.string().optional().describe("ID of an existing variable collection"),
-      collectionName: z.string().optional().describe("Name for a new collection (used if collectionId not provided)"),
+      collectionId: z
+        .string()
+        .optional()
+        .describe("ID of an existing variable collection"),
+      collectionName: z
+        .string()
+        .optional()
+        .describe(
+          "Name for a new collection (used if collectionId not provided)",
+        ),
       name: z.string().describe("Variable name"),
-      resolvedType: z.enum(["COLOR", "FLOAT", "STRING", "BOOLEAN"]).describe("Variable type"),
-      value: z.any().describe("Variable value. COLOR: {r,g,b,a} (0-1). FLOAT: number. STRING: string. BOOLEAN: boolean."),
-      modeId: z.string().optional().describe("Mode ID to set the value for (uses default mode if omitted)"),
+      resolvedType: z
+        .enum(["COLOR", "FLOAT", "STRING", "BOOLEAN"])
+        .describe("Variable type"),
+      value: z
+        .any()
+        .describe(
+          "Variable value. COLOR: {r,g,b,a} (0-1). FLOAT: number. STRING: string. BOOLEAN: boolean.",
+        ),
+      modeId: z
+        .string()
+        .optional()
+        .describe(
+          "Mode ID to set the value for (uses default mode if omitted)",
+        ),
     },
-    async ({ collectionId, collectionName, name, resolvedType, value, modeId }) => {
+    async ({
+      collectionId,
+      collectionName,
+      name,
+      resolvedType,
+      value,
+      modeId,
+    }) => {
       try {
         const result = await sendCommandToFigma("set_variable", {
           collectionId,
@@ -60,7 +86,11 @@ export function registerVariableTools(server: McpServer): void {
           value,
           modeId,
         });
-        const typedResult = result as { variableId: string; variableName: string; collectionName: string };
+        const typedResult = result as {
+          variableId: string;
+          variableName: string;
+          collectionName: string;
+        };
         return {
           content: [
             {
@@ -79,7 +109,7 @@ export function registerVariableTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Apply Variable to Node Tool
@@ -89,7 +119,11 @@ export function registerVariableTools(server: McpServer): void {
     {
       nodeId: z.string().describe("The ID of the node to bind the variable to"),
       variableId: z.string().describe("The ID of the variable to bind"),
-      field: z.string().describe("The node property field to bind (e.g., 'fills/0/color', 'opacity', 'width', 'height')"),
+      field: z
+        .string()
+        .describe(
+          "The node property field to bind (e.g., 'fills/0/color', 'opacity', 'width', 'height')",
+        ),
     },
     async ({ nodeId, variableId, field }) => {
       try {
@@ -98,7 +132,11 @@ export function registerVariableTools(server: McpServer): void {
           variableId,
           field,
         });
-        const typedResult = result as { nodeName: string; variableName: string; field: string };
+        const typedResult = result as {
+          nodeName: string;
+          variableName: string;
+          field: string;
+        };
         return {
           content: [
             {
@@ -117,7 +155,7 @@ export function registerVariableTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Switch Variable Mode Tool
@@ -136,7 +174,11 @@ export function registerVariableTools(server: McpServer): void {
           collectionId,
           modeId,
         });
-        const typedResult = result as { nodeName: string; collectionName: string; modeName: string };
+        const typedResult = result as {
+          nodeName: string;
+          collectionName: string;
+          modeName: string;
+        };
         return {
           content: [
             {
@@ -155,6 +197,6 @@ export function registerVariableTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 }

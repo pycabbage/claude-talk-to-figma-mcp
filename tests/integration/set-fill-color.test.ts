@@ -1,9 +1,9 @@
-import { z } from 'zod';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { registerModificationTools } from '../../src/talk_to_figma_mcp/tools/modification-tools';
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+import { registerModificationTools } from "../../src/talk_to_figma_mcp/tools/modification-tools";
 
-jest.mock('../../src/talk_to_figma_mcp/utils/websocket', () => ({
-  sendCommandToFigma: jest.fn().mockResolvedValue({ name: "MockNode" })
+jest.mock("../../src/talk_to_figma_mcp/utils/websocket", () => ({
+  sendCommandToFigma: jest.fn().mockResolvedValue({ name: "MockNode" }),
 }));
 
 describe("set_fill_color tool integration", () => {
@@ -14,25 +14,26 @@ describe("set_fill_color tool integration", () => {
 
   beforeEach(() => {
     server = new McpServer(
-      { name: 'test-server', version: '1.0.0' },
-      { capabilities: { tools: {} } }
+      { name: "test-server", version: "1.0.0" },
+      { capabilities: { tools: {} } },
     );
-    
-    mockSendCommand = require('../../src/talk_to_figma_mcp/utils/websocket').sendCommandToFigma;
+
+    mockSendCommand =
+      require("../../src/talk_to_figma_mcp/utils/websocket").sendCommandToFigma;
     mockSendCommand.mockClear();
-    
+
     const originalTool = server.tool.bind(server);
-    jest.spyOn(server, 'tool').mockImplementation((...args: any[]) => {
+    jest.spyOn(server, "tool").mockImplementation((...args: any[]) => {
       if (args.length === 4) {
         const [name, description, schema, handler] = args;
-        if (name === 'set_fill_color') {
+        if (name === "set_fill_color") {
           toolHandler = handler;
           toolSchema = z.object(schema);
         }
       }
       return (originalTool as any)(...args);
     });
-    
+
     registerModificationTools(server);
   });
 
@@ -153,111 +154,129 @@ describe("set_fill_color tool integration", () => {
 
   describe("Zod validation (real validation layer)", () => {
     it("rejects undefined r component", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF1",
-        // r is missing
-        g: 0.5,
-        b: 0.8,
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF1",
+          // r is missing
+          g: 0.5,
+          b: 0.8,
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       // WebSocket should not be called if validation fails
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
 
     it("rejects undefined g component", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF2",
-        r: 0.5,
-        // g is missing
-        b: 0.8,
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF2",
+          r: 0.5,
+          // g is missing
+          b: 0.8,
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
 
     it("rejects undefined b component", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF3",
-        r: 0.5,
-        g: 0.8,
-        // b is missing
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF3",
+          r: 0.5,
+          g: 0.8,
+          // b is missing
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
 
     it("rejects string r component", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF4",
-        r: "red", // Invalid type
-        g: 0.5,
-        b: 0.8,
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF4",
+          r: "red", // Invalid type
+          g: 0.5,
+          b: 0.8,
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
 
     it("rejects null g component", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF5",
-        r: 0.5,
-        g: null, // Invalid type
-        b: 0.8,
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF5",
+          r: 0.5,
+          g: null, // Invalid type
+          b: 0.8,
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
 
     it("rejects boolean b component", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF6",
-        r: 0.5,
-        g: 0.8,
-        b: true, // Invalid type
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF6",
+          r: 0.5,
+          g: 0.8,
+          b: true, // Invalid type
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
 
     it("rejects NaN values", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF7",
-        r: NaN, // Invalid value
-        g: 0.5,
-        b: 0.8,
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF7",
+          r: NaN, // Invalid value
+          g: 0.5,
+          b: 0.8,
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
 
     it("rejects out-of-range values", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF8",
-        r: 1.5, // Out of 0-1 range
-        g: 0.5,
-        b: 0.8,
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF8",
+          r: 1.5, // Out of 0-1 range
+          g: 0.5,
+          b: 0.8,
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
 
     it("rejects negative values", async () => {
-      await expect(callToolWithValidation({
-        nodeId: "nodeF9",
-        r: -0.1, // Negative value
-        g: 0.5,
-        b: 0.8,
-        a: 1,
-      })).rejects.toThrow();
-      
+      await expect(
+        callToolWithValidation({
+          nodeId: "nodeF9",
+          r: -0.1, // Negative value
+          g: 0.5,
+          b: 0.8,
+          a: 1,
+        }),
+      ).rejects.toThrow();
+
       expect(mockSendCommand).not.toHaveBeenCalled();
     });
   });

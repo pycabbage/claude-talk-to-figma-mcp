@@ -1,5 +1,5 @@
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { sendCommandToFigma } from "../utils/websocket";
 
 /**
@@ -41,7 +41,7 @@ export function registerTextTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Set Multiple Text Contents Tool
@@ -57,7 +57,7 @@ export function registerTextTools(server: McpServer): void {
           z.object({
             nodeId: z.string().describe("The ID of the text node"),
             text: z.string().describe("The replacement text"),
-          })
+          }),
         )
         .describe("Array of text node IDs and their replacement texts"),
     },
@@ -81,7 +81,7 @@ export function registerTextTools(server: McpServer): void {
         };
 
         // Track overall progress
-        let totalProcessed = 0;
+        const totalProcessed = 0;
         const totalToProcess = text.length;
 
         // Use the plugin's set_multiple_text_contents function with chunking
@@ -110,7 +110,9 @@ export function registerTextTools(server: McpServer): void {
         const typedResult = result as TextReplaceResult;
 
         // Format the results for display
-        const success = typedResult.replacementsApplied && typedResult.replacementsApplied > 0;
+        const success =
+          typedResult.replacementsApplied &&
+          typedResult.replacementsApplied > 0;
         const progressText = `
         Text replacement completed:
         - ${typedResult.replacementsApplied || 0} of ${totalToProcess} successfully updated
@@ -120,14 +122,14 @@ export function registerTextTools(server: McpServer): void {
 
         // Detailed results
         const detailedResults = typedResult.results || [];
-        const failedResults = detailedResults.filter(item => !item.success);
+        const failedResults = detailedResults.filter((item) => !item.success);
 
         // Create the detailed part of the response
         let detailedResponse = "";
         if (failedResults.length > 0) {
-          detailedResponse = `\n\nNodes that failed:\n${failedResults.map(item =>
-            `- ${item.nodeId}: ${item.error || "Unknown error"}`
-          ).join('\n')}`;
+          detailedResponse = `\n\nNodes that failed:\n${failedResults
+            .map((item) => `- ${item.nodeId}: ${item.error || "Unknown error"}`)
+            .join("\n")}`;
         }
 
         return {
@@ -149,7 +151,7 @@ export function registerTextTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Set Font Name Tool
@@ -159,35 +161,41 @@ export function registerTextTools(server: McpServer): void {
     {
       nodeId: z.string().describe("The ID of the text node to modify"),
       family: z.string().describe("Font family name"),
-      style: z.string().optional().describe("Font style (e.g., 'Regular', 'Bold', 'Italic')"),
+      style: z
+        .string()
+        .optional()
+        .describe("Font style (e.g., 'Regular', 'Bold', 'Italic')"),
     },
     async ({ nodeId, family, style }) => {
       try {
         const result = await sendCommandToFigma("set_font_name", {
           nodeId,
           family,
-          style
+          style,
         });
-        const typedResult = result as { name: string, fontName: { family: string, style: string } };
+        const typedResult = result as {
+          name: string;
+          fontName: { family: string; style: string };
+        };
         return {
           content: [
             {
               type: "text",
-              text: `Updated font of node "${typedResult.name}" to ${typedResult.fontName.family} ${typedResult.fontName.style}`
-            }
-          ]
+              text: `Updated font of node "${typedResult.name}" to ${typedResult.fontName.family} ${typedResult.fontName.style}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting font name: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting font name: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Font Size Tool
@@ -202,28 +210,28 @@ export function registerTextTools(server: McpServer): void {
       try {
         const result = await sendCommandToFigma("set_font_size", {
           nodeId,
-          fontSize
+          fontSize,
         });
-        const typedResult = result as { name: string, fontSize: number };
+        const typedResult = result as { name: string; fontSize: number };
         return {
           content: [
             {
               type: "text",
-              text: `Updated font size of node "${typedResult.name}" to ${typedResult.fontSize}px`
-            }
-          ]
+              text: `Updated font size of node "${typedResult.name}" to ${typedResult.fontSize}px`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting font size: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting font size: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Font Weight Tool
@@ -232,34 +240,40 @@ export function registerTextTools(server: McpServer): void {
     "Set the font weight of a text node in Figma",
     {
       nodeId: z.string().describe("The ID of the text node to modify"),
-      weight: z.number().describe("Font weight (100, 200, 300, 400, 500, 600, 700, 800, 900)"),
+      weight: z
+        .number()
+        .describe("Font weight (100, 200, 300, 400, 500, 600, 700, 800, 900)"),
     },
     async ({ nodeId, weight }) => {
       try {
         const result = await sendCommandToFigma("set_font_weight", {
           nodeId,
-          weight
+          weight,
         });
-        const typedResult = result as { name: string, fontName: { family: string, style: string }, weight: number };
+        const typedResult = result as {
+          name: string;
+          fontName: { family: string; style: string };
+          weight: number;
+        };
         return {
           content: [
             {
               type: "text",
-              text: `Updated font weight of node "${typedResult.name}" to ${typedResult.weight} (${typedResult.fontName.style})`
-            }
-          ]
+              text: `Updated font weight of node "${typedResult.name}" to ${typedResult.weight} (${typedResult.fontName.style})`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting font weight: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting font weight: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Letter Spacing Tool
@@ -269,35 +283,41 @@ export function registerTextTools(server: McpServer): void {
     {
       nodeId: z.string().describe("The ID of the text node to modify"),
       letterSpacing: z.number().describe("Letter spacing value"),
-      unit: z.enum(["PIXELS", "PERCENT"]).optional().describe("Unit type (PIXELS or PERCENT)"),
+      unit: z
+        .enum(["PIXELS", "PERCENT"])
+        .optional()
+        .describe("Unit type (PIXELS or PERCENT)"),
     },
     async ({ nodeId, letterSpacing, unit }) => {
       try {
         const result = await sendCommandToFigma("set_letter_spacing", {
           nodeId,
           letterSpacing,
-          unit: unit || "PIXELS"
+          unit: unit || "PIXELS",
         });
-        const typedResult = result as { name: string, letterSpacing: { value: number, unit: string } };
+        const typedResult = result as {
+          name: string;
+          letterSpacing: { value: number; unit: string };
+        };
         return {
           content: [
             {
               type: "text",
-              text: `Updated letter spacing of node "${typedResult.name}" to ${typedResult.letterSpacing.value} ${typedResult.letterSpacing.unit}`
-            }
-          ]
+              text: `Updated letter spacing of node "${typedResult.name}" to ${typedResult.letterSpacing.value} ${typedResult.letterSpacing.unit}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting letter spacing: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting letter spacing: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Line Height Tool
@@ -307,35 +327,41 @@ export function registerTextTools(server: McpServer): void {
     {
       nodeId: z.string().describe("The ID of the text node to modify"),
       lineHeight: z.number().describe("Line height value"),
-      unit: z.enum(["PIXELS", "PERCENT", "AUTO"]).optional().describe("Unit type (PIXELS, PERCENT, or AUTO)"),
+      unit: z
+        .enum(["PIXELS", "PERCENT", "AUTO"])
+        .optional()
+        .describe("Unit type (PIXELS, PERCENT, or AUTO)"),
     },
     async ({ nodeId, lineHeight, unit }) => {
       try {
         const result = await sendCommandToFigma("set_line_height", {
           nodeId,
           lineHeight,
-          unit: unit || "PIXELS"
+          unit: unit || "PIXELS",
         });
-        const typedResult = result as { name: string, lineHeight: { value: number, unit: string } };
+        const typedResult = result as {
+          name: string;
+          lineHeight: { value: number; unit: string };
+        };
         return {
           content: [
             {
               type: "text",
-              text: `Updated line height of node "${typedResult.name}" to ${typedResult.lineHeight.value} ${typedResult.lineHeight.unit}`
-            }
-          ]
+              text: `Updated line height of node "${typedResult.name}" to ${typedResult.lineHeight.value} ${typedResult.lineHeight.unit}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting line height: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting line height: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Paragraph Spacing Tool
@@ -344,34 +370,39 @@ export function registerTextTools(server: McpServer): void {
     "Set the paragraph spacing of a text node in Figma",
     {
       nodeId: z.string().describe("The ID of the text node to modify"),
-      paragraphSpacing: z.number().describe("Paragraph spacing value in pixels"),
+      paragraphSpacing: z
+        .number()
+        .describe("Paragraph spacing value in pixels"),
     },
     async ({ nodeId, paragraphSpacing }) => {
       try {
         const result = await sendCommandToFigma("set_paragraph_spacing", {
           nodeId,
-          paragraphSpacing
+          paragraphSpacing,
         });
-        const typedResult = result as { name: string, paragraphSpacing: number };
+        const typedResult = result as {
+          name: string;
+          paragraphSpacing: number;
+        };
         return {
           content: [
             {
               type: "text",
-              text: `Updated paragraph spacing of node "${typedResult.name}" to ${typedResult.paragraphSpacing}px`
-            }
-          ]
+              text: `Updated paragraph spacing of node "${typedResult.name}" to ${typedResult.paragraphSpacing}px`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting paragraph spacing: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting paragraph spacing: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Text Case Tool
@@ -380,34 +411,36 @@ export function registerTextTools(server: McpServer): void {
     "Set the text case of a text node in Figma",
     {
       nodeId: z.string().describe("The ID of the text node to modify"),
-      textCase: z.enum(["ORIGINAL", "UPPER", "LOWER", "TITLE"]).describe("Text case type"),
+      textCase: z
+        .enum(["ORIGINAL", "UPPER", "LOWER", "TITLE"])
+        .describe("Text case type"),
     },
     async ({ nodeId, textCase }) => {
       try {
         const result = await sendCommandToFigma("set_text_case", {
           nodeId,
-          textCase
+          textCase,
         });
-        const typedResult = result as { name: string, textCase: string };
+        const typedResult = result as { name: string; textCase: string };
         return {
           content: [
             {
               type: "text",
-              text: `Updated text case of node "${typedResult.name}" to ${typedResult.textCase}`
-            }
-          ]
+              text: `Updated text case of node "${typedResult.name}" to ${typedResult.textCase}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting text case: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting text case: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Text Decoration Tool
@@ -416,34 +449,36 @@ export function registerTextTools(server: McpServer): void {
     "Set the text decoration of a text node in Figma",
     {
       nodeId: z.string().describe("The ID of the text node to modify"),
-      textDecoration: z.enum(["NONE", "UNDERLINE", "STRIKETHROUGH"]).describe("Text decoration type"),
+      textDecoration: z
+        .enum(["NONE", "UNDERLINE", "STRIKETHROUGH"])
+        .describe("Text decoration type"),
     },
     async ({ nodeId, textDecoration }) => {
       try {
         const result = await sendCommandToFigma("set_text_decoration", {
           nodeId,
-          textDecoration
+          textDecoration,
         });
-        const typedResult = result as { name: string, textDecoration: string };
+        const typedResult = result as { name: string; textDecoration: string };
         return {
           content: [
             {
               type: "text",
-              text: `Updated text decoration of node "${typedResult.name}" to ${typedResult.textDecoration}`
-            }
-          ]
+              text: `Updated text decoration of node "${typedResult.name}" to ${typedResult.textDecoration}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting text decoration: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting text decoration: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Get Styled Text Segments Tool
@@ -452,45 +487,47 @@ export function registerTextTools(server: McpServer): void {
     "Get text segments with specific styling in a text node",
     {
       nodeId: z.string().describe("The ID of the text node to analyze"),
-      property: z.enum([
-        "fillStyleId", 
-        "fontName", 
-        "fontSize", 
-        "textCase", 
-        "textDecoration", 
-        "textStyleId", 
-        "fills", 
-        "letterSpacing", 
-        "lineHeight", 
-        "fontWeight"
-      ]).describe("The style property to analyze segments by"),
+      property: z
+        .enum([
+          "fillStyleId",
+          "fontName",
+          "fontSize",
+          "textCase",
+          "textDecoration",
+          "textStyleId",
+          "fills",
+          "letterSpacing",
+          "lineHeight",
+          "fontWeight",
+        ])
+        .describe("The style property to analyze segments by"),
     },
     async ({ nodeId, property }) => {
       try {
         const result = await sendCommandToFigma("get_styled_text_segments", {
           nodeId,
-          property
+          property,
         });
-        
+
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2)
-            }
-          ]
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error getting styled text segments: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error getting styled text segments: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Text Style ID Tool
@@ -505,28 +542,32 @@ export function registerTextTools(server: McpServer): void {
       try {
         const result = await sendCommandToFigma("set_text_style_id", {
           nodeId,
-          textStyleId
+          textStyleId,
         });
-        const typedResult = result as { name: string, textStyleId: string, styleName: string };
+        const typedResult = result as {
+          name: string;
+          textStyleId: string;
+          styleName: string;
+        };
         return {
           content: [
             {
               type: "text",
-              text: `Applied text style "${typedResult.styleName}" to node "${typedResult.name}"`
-            }
-          ]
+              text: `Applied text style "${typedResult.styleName}" to node "${typedResult.name}"`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting text style: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting text style: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Load Font Async Tool
@@ -535,34 +576,44 @@ export function registerTextTools(server: McpServer): void {
     "Load a font asynchronously in Figma",
     {
       family: z.string().describe("Font family name"),
-      style: z.string().optional().describe("Font style (e.g., 'Regular', 'Bold', 'Italic')"),
+      style: z
+        .string()
+        .optional()
+        .describe("Font style (e.g., 'Regular', 'Bold', 'Italic')"),
     },
     async ({ family, style }) => {
       try {
         const result = await sendCommandToFigma("load_font_async", {
           family,
-          style: style || "Regular"
+          style: style || "Regular",
         });
-        const typedResult = result as { success: boolean, family: string, style: string, message: string };
+        const typedResult = result as {
+          success: boolean;
+          family: string;
+          style: string;
+          message: string;
+        };
         return {
           content: [
             {
               type: "text",
-              text: typedResult.message || `Loaded font ${family} ${style || "Regular"}`
-            }
-          ]
+              text:
+                typedResult.message ||
+                `Loaded font ${family} ${style || "Regular"}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error loading font: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error loading font: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Set Text Align Tool
@@ -571,35 +622,47 @@ export function registerTextTools(server: McpServer): void {
     "Set the text alignment of a text node in Figma. Use textAlignHorizontal RIGHT for RTL/Arabic text.",
     {
       nodeId: z.string().describe("The ID of the text node to modify"),
-      textAlignHorizontal: z.enum(["LEFT", "CENTER", "RIGHT", "JUSTIFIED"]).optional().describe("Horizontal text alignment (LEFT, CENTER, RIGHT, JUSTIFIED). Use RIGHT for Arabic/RTL text."),
-      textAlignVertical: z.enum(["TOP", "CENTER", "BOTTOM"]).optional().describe("Vertical text alignment (TOP, CENTER, BOTTOM)"),
+      textAlignHorizontal: z
+        .enum(["LEFT", "CENTER", "RIGHT", "JUSTIFIED"])
+        .optional()
+        .describe(
+          "Horizontal text alignment (LEFT, CENTER, RIGHT, JUSTIFIED). Use RIGHT for Arabic/RTL text.",
+        ),
+      textAlignVertical: z
+        .enum(["TOP", "CENTER", "BOTTOM"])
+        .optional()
+        .describe("Vertical text alignment (TOP, CENTER, BOTTOM)"),
     },
     async ({ nodeId, textAlignHorizontal, textAlignVertical }) => {
       try {
         const result = await sendCommandToFigma("set_text_align", {
           nodeId,
           textAlignHorizontal,
-          textAlignVertical
+          textAlignVertical,
         });
-        const typedResult = result as { name: string, textAlignHorizontal: string, textAlignVertical: string };
+        const typedResult = result as {
+          name: string;
+          textAlignHorizontal: string;
+          textAlignVertical: string;
+        };
         return {
           content: [
             {
               type: "text",
-              text: `Updated text alignment of node "${typedResult.name}" to horizontal: ${typedResult.textAlignHorizontal}, vertical: ${typedResult.textAlignVertical}`
-            }
-          ]
+              text: `Updated text alignment of node "${typedResult.name}" to horizontal: ${typedResult.textAlignHorizontal}, vertical: ${typedResult.textAlignVertical}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error setting text alignment: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error setting text alignment: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 }

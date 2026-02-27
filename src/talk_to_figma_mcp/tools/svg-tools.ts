@@ -1,5 +1,5 @@
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { sendCommandToFigma } from "../utils/websocket";
 
 /**
@@ -12,11 +12,28 @@ export function registerSvgTools(server: McpServer): void {
     "set_svg",
     "Import an SVG string as a vector node in Figma. The SVG is sanitized (scripts and external resources are stripped) before import. Max 500KB.",
     {
-      svgString: z.string().max(500_000).describe("SVG markup string (max 500KB). Must contain a valid <svg> element."),
-      x: z.number().optional().describe("X position for the imported SVG (default: 0)"),
-      y: z.number().optional().describe("Y position for the imported SVG (default: 0)"),
-      name: z.string().optional().describe("Optional name for the imported node"),
-      parentId: z.string().optional().describe("Optional parent node ID to place the SVG into"),
+      svgString: z
+        .string()
+        .max(500_000)
+        .describe(
+          "SVG markup string (max 500KB). Must contain a valid <svg> element.",
+        ),
+      x: z
+        .number()
+        .optional()
+        .describe("X position for the imported SVG (default: 0)"),
+      y: z
+        .number()
+        .optional()
+        .describe("Y position for the imported SVG (default: 0)"),
+      name: z
+        .string()
+        .optional()
+        .describe("Optional name for the imported node"),
+      parentId: z
+        .string()
+        .optional()
+        .describe("Optional parent node ID to place the SVG into"),
     },
     async ({ svgString, x, y, name, parentId }) => {
       try {
@@ -27,7 +44,12 @@ export function registerSvgTools(server: McpServer): void {
           name,
           parentId,
         });
-        const typedResult = result as { id: string; name: string; width: number; height: number };
+        const typedResult = result as {
+          id: string;
+          name: string;
+          width: number;
+          height: number;
+        };
         return {
           content: [
             {
@@ -46,7 +68,7 @@ export function registerSvgTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Export SVG Tool
@@ -78,6 +100,6 @@ export function registerSvgTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 }

@@ -1,5 +1,5 @@
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { sendCommandToFigma } from "../utils/websocket";
 
 /**
@@ -13,8 +13,12 @@ export function registerCreationTools(server: McpServer): void {
     "create_rectangle",
     "Create a new rectangle in Figma",
     {
-      x: z.number().describe("X position (local coordinates, relative to parent)"),
-      y: z.number().describe("Y position (local coordinates, relative to parent)"),
+      x: z
+        .number()
+        .describe("X position (local coordinates, relative to parent)"),
+      y: z
+        .number()
+        .describe("Y position (local coordinates, relative to parent)"),
       width: z.number().describe("Width of the rectangle"),
       height: z.number().describe("Height of the rectangle"),
       name: z.string().optional().describe("Optional name for the rectangle"),
@@ -51,7 +55,7 @@ export function registerCreationTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Create Frame Tool
@@ -59,8 +63,12 @@ export function registerCreationTools(server: McpServer): void {
     "create_frame",
     "Create a new frame in Figma",
     {
-      x: z.number().describe("X position (local coordinates, relative to parent)"),
-      y: z.number().describe("Y position (local coordinates, relative to parent)"),
+      x: z
+        .number()
+        .describe("X position (local coordinates, relative to parent)"),
+      y: z
+        .number()
+        .describe("Y position (local coordinates, relative to parent)"),
       width: z.number().describe("Width of the frame"),
       height: z.number().describe("Height of the frame"),
       name: z.string().optional().describe("Optional name for the frame"),
@@ -140,7 +148,7 @@ export function registerCreationTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Create Text Tool
@@ -148,8 +156,12 @@ export function registerCreationTools(server: McpServer): void {
     "create_text",
     "Create a new text element in Figma",
     {
-      x: z.number().describe("X position (local coordinates, relative to parent)"),
-      y: z.number().describe("Y position (local coordinates, relative to parent)"),
+      x: z
+        .number()
+        .describe("X position (local coordinates, relative to parent)"),
+      y: z
+        .number()
+        .describe("Y position (local coordinates, relative to parent)"),
       text: z.string().describe("Text content"),
       fontSize: z.number().optional().describe("Font size (default: 14)"),
       fontWeight: z
@@ -185,14 +197,30 @@ export function registerCreationTools(server: McpServer): void {
       textAutoResize: z
         .enum(["WIDTH_AND_HEIGHT", "HEIGHT", "NONE", "TRUNCATE"])
         .optional()
-        .describe("Text resize behavior. Use HEIGHT for fixed-width text that wraps."),
+        .describe(
+          "Text resize behavior. Use HEIGHT for fixed-width text that wraps.",
+        ),
       width: z
         .number()
         .positive()
         .optional()
-        .describe("Fixed width for the text node. Use with textAutoResize HEIGHT for wrapping text within a specific width."),
+        .describe(
+          "Fixed width for the text node. Use with textAutoResize HEIGHT for wrapping text within a specific width.",
+        ),
     },
-    async ({ x, y, text, fontSize, fontWeight, fontColor, name, parentId, textAlignHorizontal, textAutoResize, width }) => {
+    async ({
+      x,
+      y,
+      text,
+      fontSize,
+      fontWeight,
+      fontColor,
+      name,
+      parentId,
+      textAlignHorizontal,
+      textAutoResize,
+      width,
+    }) => {
       try {
         const result = await sendCommandToFigma("create_text", {
           x,
@@ -226,7 +254,7 @@ export function registerCreationTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 
   // Create Ellipse Tool
@@ -234,18 +262,30 @@ export function registerCreationTools(server: McpServer): void {
     "create_ellipse",
     "Create a new ellipse in Figma",
     {
-      x: z.number().describe("X position (local coordinates, relative to parent)"),
-      y: z.number().describe("Y position (local coordinates, relative to parent)"),
+      x: z
+        .number()
+        .describe("X position (local coordinates, relative to parent)"),
+      y: z
+        .number()
+        .describe("Y position (local coordinates, relative to parent)"),
       width: z.number().describe("Width of the ellipse"),
       height: z.number().describe("Height of the ellipse"),
       name: z.string().optional().describe("Optional name for the ellipse"),
-      parentId: z.string().optional().describe("Optional parent node ID to append the ellipse to"),
+      parentId: z
+        .string()
+        .optional()
+        .describe("Optional parent node ID to append the ellipse to"),
       fillColor: z
         .object({
           r: z.number().min(0).max(1).describe("Red component (0-1)"),
           g: z.number().min(0).max(1).describe("Green component (0-1)"),
           b: z.number().min(0).max(1).describe("Blue component (0-1)"),
-          a: z.number().min(0).max(1).optional().describe("Alpha component (0-1)"),
+          a: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .describe("Alpha component (0-1)"),
         })
         .optional()
         .describe("Fill color in RGBA format"),
@@ -254,13 +294,28 @@ export function registerCreationTools(server: McpServer): void {
           r: z.number().min(0).max(1).describe("Red component (0-1)"),
           g: z.number().min(0).max(1).describe("Green component (0-1)"),
           b: z.number().min(0).max(1).describe("Blue component (0-1)"),
-          a: z.number().min(0).max(1).optional().describe("Alpha component (0-1)"),
+          a: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .describe("Alpha component (0-1)"),
         })
         .optional()
         .describe("Stroke color in RGBA format"),
       strokeWeight: z.number().positive().optional().describe("Stroke weight"),
     },
-    async ({ x, y, width, height, name, parentId, fillColor, strokeColor, strokeWeight }) => {
+    async ({
+      x,
+      y,
+      width,
+      height,
+      name,
+      parentId,
+      fillColor,
+      strokeColor,
+      strokeWeight,
+    }) => {
       try {
         const result = await sendCommandToFigma("create_ellipse", {
           x,
@@ -273,27 +328,27 @@ export function registerCreationTools(server: McpServer): void {
           strokeColor,
           strokeWeight,
         });
-        
-        const typedResult = result as { id: string, name: string };
+
+        const typedResult = result as { id: string; name: string };
         return {
           content: [
             {
               type: "text",
-              text: `Created ellipse with ID: ${typedResult.id}`
-            }
-          ]
+              text: `Created ellipse with ID: ${typedResult.id}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error creating ellipse: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error creating ellipse: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Create Polygon Tool
@@ -301,19 +356,35 @@ export function registerCreationTools(server: McpServer): void {
     "create_polygon",
     "Create a new polygon in Figma",
     {
-      x: z.number().describe("X position (local coordinates, relative to parent)"),
-      y: z.number().describe("Y position (local coordinates, relative to parent)"),
+      x: z
+        .number()
+        .describe("X position (local coordinates, relative to parent)"),
+      y: z
+        .number()
+        .describe("Y position (local coordinates, relative to parent)"),
       width: z.number().describe("Width of the polygon"),
       height: z.number().describe("Height of the polygon"),
-      sides: z.number().min(3).optional().describe("Number of sides (default: 6)"),
+      sides: z
+        .number()
+        .min(3)
+        .optional()
+        .describe("Number of sides (default: 6)"),
       name: z.string().optional().describe("Optional name for the polygon"),
-      parentId: z.string().optional().describe("Optional parent node ID to append the polygon to"),
+      parentId: z
+        .string()
+        .optional()
+        .describe("Optional parent node ID to append the polygon to"),
       fillColor: z
         .object({
           r: z.number().min(0).max(1).describe("Red component (0-1)"),
           g: z.number().min(0).max(1).describe("Green component (0-1)"),
           b: z.number().min(0).max(1).describe("Blue component (0-1)"),
-          a: z.number().min(0).max(1).optional().describe("Alpha component (0-1)"),
+          a: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .describe("Alpha component (0-1)"),
         })
         .optional()
         .describe("Fill color in RGBA format"),
@@ -322,13 +393,29 @@ export function registerCreationTools(server: McpServer): void {
           r: z.number().min(0).max(1).describe("Red component (0-1)"),
           g: z.number().min(0).max(1).describe("Green component (0-1)"),
           b: z.number().min(0).max(1).describe("Blue component (0-1)"),
-          a: z.number().min(0).max(1).optional().describe("Alpha component (0-1)"),
+          a: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .describe("Alpha component (0-1)"),
         })
         .optional()
         .describe("Stroke color in RGBA format"),
       strokeWeight: z.number().positive().optional().describe("Stroke weight"),
     },
-    async ({ x, y, width, height, sides, name, parentId, fillColor, strokeColor, strokeWeight }) => {
+    async ({
+      x,
+      y,
+      width,
+      height,
+      sides,
+      name,
+      parentId,
+      fillColor,
+      strokeColor,
+      strokeWeight,
+    }) => {
       try {
         const result = await sendCommandToFigma("create_polygon", {
           x,
@@ -342,27 +429,27 @@ export function registerCreationTools(server: McpServer): void {
           strokeColor,
           strokeWeight,
         });
-        
-        const typedResult = result as { id: string, name: string };
+
+        const typedResult = result as { id: string; name: string };
         return {
           content: [
             {
               type: "text",
-              text: `Created polygon with ID: ${typedResult.id} and ${sides || 6} sides`
-            }
-          ]
+              text: `Created polygon with ID: ${typedResult.id} and ${sides || 6} sides`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error creating polygon: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error creating polygon: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Create Star Tool
@@ -370,20 +457,41 @@ export function registerCreationTools(server: McpServer): void {
     "create_star",
     "Create a new star in Figma",
     {
-      x: z.number().describe("X position (local coordinates, relative to parent)"),
-      y: z.number().describe("Y position (local coordinates, relative to parent)"),
+      x: z
+        .number()
+        .describe("X position (local coordinates, relative to parent)"),
+      y: z
+        .number()
+        .describe("Y position (local coordinates, relative to parent)"),
       width: z.number().describe("Width of the star"),
       height: z.number().describe("Height of the star"),
-      points: z.number().min(3).optional().describe("Number of points (default: 5)"),
-      innerRadius: z.number().min(0.01).max(0.99).optional().describe("Inner radius ratio (0.01-0.99, default: 0.5)"),
+      points: z
+        .number()
+        .min(3)
+        .optional()
+        .describe("Number of points (default: 5)"),
+      innerRadius: z
+        .number()
+        .min(0.01)
+        .max(0.99)
+        .optional()
+        .describe("Inner radius ratio (0.01-0.99, default: 0.5)"),
       name: z.string().optional().describe("Optional name for the star"),
-      parentId: z.string().optional().describe("Optional parent node ID to append the star to"),
+      parentId: z
+        .string()
+        .optional()
+        .describe("Optional parent node ID to append the star to"),
       fillColor: z
         .object({
           r: z.number().min(0).max(1).describe("Red component (0-1)"),
           g: z.number().min(0).max(1).describe("Green component (0-1)"),
           b: z.number().min(0).max(1).describe("Blue component (0-1)"),
-          a: z.number().min(0).max(1).optional().describe("Alpha component (0-1)"),
+          a: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .describe("Alpha component (0-1)"),
         })
         .optional()
         .describe("Fill color in RGBA format"),
@@ -392,13 +500,30 @@ export function registerCreationTools(server: McpServer): void {
           r: z.number().min(0).max(1).describe("Red component (0-1)"),
           g: z.number().min(0).max(1).describe("Green component (0-1)"),
           b: z.number().min(0).max(1).describe("Blue component (0-1)"),
-          a: z.number().min(0).max(1).optional().describe("Alpha component (0-1)"),
+          a: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .describe("Alpha component (0-1)"),
         })
         .optional()
         .describe("Stroke color in RGBA format"),
       strokeWeight: z.number().positive().optional().describe("Stroke weight"),
     },
-    async ({ x, y, width, height, points, innerRadius, name, parentId, fillColor, strokeColor, strokeWeight }) => {
+    async ({
+      x,
+      y,
+      width,
+      height,
+      points,
+      innerRadius,
+      name,
+      parentId,
+      fillColor,
+      strokeColor,
+      strokeWeight,
+    }) => {
       try {
         const result = await sendCommandToFigma("create_star", {
           x,
@@ -413,27 +538,27 @@ export function registerCreationTools(server: McpServer): void {
           strokeColor,
           strokeWeight,
         });
-        
-        const typedResult = result as { id: string, name: string };
+
+        const typedResult = result as { id: string; name: string };
         return {
           content: [
             {
               type: "text",
-              text: `Created star with ID: ${typedResult.id}, ${points || 5} points, and inner radius ratio of ${innerRadius || 0.5}`
-            }
-          ]
+              text: `Created star with ID: ${typedResult.id}, ${points || 5} points, and inner radius ratio of ${innerRadius || 0.5}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error creating star: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error creating star: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Group Nodes Tool
@@ -441,42 +566,44 @@ export function registerCreationTools(server: McpServer): void {
     "group_nodes",
     "Group nodes in Figma",
     {
-      nodeIds: z.array(z.string()).describe("Array of IDs of the nodes to group"),
-      name: z.string().optional().describe("Optional name for the group")
+      nodeIds: z
+        .array(z.string())
+        .describe("Array of IDs of the nodes to group"),
+      name: z.string().optional().describe("Optional name for the group"),
     },
     async ({ nodeIds, name }) => {
       try {
-        const result = await sendCommandToFigma("group_nodes", { 
-          nodeIds, 
-          name 
+        const result = await sendCommandToFigma("group_nodes", {
+          nodeIds,
+          name,
         });
-        
-        const typedResult = result as { 
-          id: string, 
-          name: string, 
-          type: string, 
-          children: Array<{ id: string, name: string, type: string }> 
+
+        const typedResult = result as {
+          id: string;
+          name: string;
+          type: string;
+          children: Array<{ id: string; name: string; type: string }>;
         };
-        
+
         return {
           content: [
             {
               type: "text",
-              text: `Nodes successfully grouped into "${typedResult.name}" with ID: ${typedResult.id}. The group contains ${typedResult.children.length} elements.`
-            }
-          ]
+              text: `Nodes successfully grouped into "${typedResult.name}" with ID: ${typedResult.id}. The group contains ${typedResult.children.length} elements.`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error grouping nodes: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error grouping nodes: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Ungroup Nodes Tool
@@ -489,32 +616,32 @@ export function registerCreationTools(server: McpServer): void {
     async ({ nodeId }) => {
       try {
         const result = await sendCommandToFigma("ungroup_nodes", { nodeId });
-        
-        const typedResult = result as { 
-          success: boolean, 
-          ungroupedCount: number, 
-          items: Array<{ id: string, name: string, type: string }> 
+
+        const typedResult = result as {
+          success: boolean;
+          ungroupedCount: number;
+          items: Array<{ id: string; name: string; type: string }>;
         };
-        
+
         return {
           content: [
             {
               type: "text",
-              text: `Node successfully ungrouped. ${typedResult.ungroupedCount} elements were released.`
-            }
-          ]
+              text: `Node successfully ungrouped. ${typedResult.ungroupedCount} elements were released.`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error ungrouping node: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error ungrouping node: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Clone Node Tool
@@ -523,32 +650,42 @@ export function registerCreationTools(server: McpServer): void {
     "Clone an existing node in Figma",
     {
       nodeId: z.string().describe("The ID of the node to clone"),
-      x: z.number().optional().describe("New X position for the clone (local coordinates, relative to parent)"),
-      y: z.number().optional().describe("New Y position for the clone (local coordinates, relative to parent)")
+      x: z
+        .number()
+        .optional()
+        .describe(
+          "New X position for the clone (local coordinates, relative to parent)",
+        ),
+      y: z
+        .number()
+        .optional()
+        .describe(
+          "New Y position for the clone (local coordinates, relative to parent)",
+        ),
     },
     async ({ nodeId, x, y }) => {
       try {
-        const result = await sendCommandToFigma('clone_node', { nodeId, x, y });
-        const typedResult = result as { name: string, id: string };
+        const result = await sendCommandToFigma("clone_node", { nodeId, x, y });
+        const typedResult = result as { name: string; id: string };
         return {
           content: [
             {
               type: "text",
-              text: `Cloned node "${typedResult.name}" with new ID: ${typedResult.id}${x !== undefined && y !== undefined ? ` at position (${x}, ${y})` : ''}`
-            }
-          ]
+              text: `Cloned node "${typedResult.name}" with new ID: ${typedResult.id}${x !== undefined && y !== undefined ? ` at position (${x}, ${y})` : ""}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error cloning node: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error cloning node: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Insert Child Tool
@@ -556,44 +693,51 @@ export function registerCreationTools(server: McpServer): void {
     "insert_child",
     "Insert a child node inside a parent node in Figma",
     {
-      parentId: z.string().describe("ID of the parent node where the child will be inserted"),
+      parentId: z
+        .string()
+        .describe("ID of the parent node where the child will be inserted"),
       childId: z.string().describe("ID of the child node to insert"),
-      index: z.number().optional().describe("Optional index where to insert the child (if not specified, it will be added at the end)")
+      index: z
+        .number()
+        .optional()
+        .describe(
+          "Optional index where to insert the child (if not specified, it will be added at the end)",
+        ),
     },
     async ({ parentId, childId, index }) => {
       try {
-        const result = await sendCommandToFigma("insert_child", { 
-          parentId, 
+        const result = await sendCommandToFigma("insert_child", {
+          parentId,
           childId,
-          index 
+          index,
         });
-        
-        const typedResult = result as { 
-          parentId: string,
-          childId: string,
-          index: number,
-          success: boolean
+
+        const typedResult = result as {
+          parentId: string;
+          childId: string;
+          index: number;
+          success: boolean;
         };
-        
+
         return {
           content: [
             {
               type: "text",
-              text: `Child node with ID: ${typedResult.childId} successfully inserted into parent node with ID: ${typedResult.parentId}${index !== undefined ? ` at position ${typedResult.index}` : ''}.`
-            }
-          ]
+              text: `Child node with ID: ${typedResult.childId} successfully inserted into parent node with ID: ${typedResult.parentId}${index !== undefined ? ` at position ${typedResult.index}` : ""}.`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error inserting child node: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error inserting child node: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Flatten Node Tool
@@ -606,32 +750,32 @@ export function registerCreationTools(server: McpServer): void {
     async ({ nodeId }) => {
       try {
         const result = await sendCommandToFigma("flatten_node", { nodeId });
-        
-        const typedResult = result as { 
-          id: string, 
-          name: string, 
-          type: string 
+
+        const typedResult = result as {
+          id: string;
+          name: string;
+          type: string;
         };
-        
+
         return {
           content: [
             {
               type: "text",
-              text: `Node "${typedResult.name}" flattened successfully. The new node has ID: ${typedResult.id} and is of type ${typedResult.type}.`
-            }
-          ]
+              text: `Node "${typedResult.name}" flattened successfully. The new node has ID: ${typedResult.id} and is of type ${typedResult.type}.`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error flattening node: ${error instanceof Error ? error.message : String(error)}`
-            }
-          ]
+              text: `Error flattening node: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
         };
       }
-    }
+    },
   );
 
   // Boolean Operation Tool
@@ -639,9 +783,19 @@ export function registerCreationTools(server: McpServer): void {
     "boolean_operation",
     "Perform a boolean operation (union, subtract, intersect, exclude) on two or more nodes. All nodes must share the same parent.",
     {
-      nodeIds: z.array(z.string()).min(2).describe("Array of node IDs to combine (minimum 2). Order matters for SUBTRACT."),
-      operation: z.enum(["UNION", "SUBTRACT", "INTERSECT", "EXCLUDE"]).describe("Boolean operation type"),
-      name: z.string().optional().describe("Optional name for the resulting node"),
+      nodeIds: z
+        .array(z.string())
+        .min(2)
+        .describe(
+          "Array of node IDs to combine (minimum 2). Order matters for SUBTRACT.",
+        ),
+      operation: z
+        .enum(["UNION", "SUBTRACT", "INTERSECT", "EXCLUDE"])
+        .describe("Boolean operation type"),
+      name: z
+        .string()
+        .optional()
+        .describe("Optional name for the resulting node"),
     },
     async ({ nodeIds, operation, name }) => {
       try {
@@ -650,7 +804,11 @@ export function registerCreationTools(server: McpServer): void {
           operation,
           name,
         });
-        const typedResult = result as { id: string; name: string; type: string };
+        const typedResult = result as {
+          id: string;
+          name: string;
+          type: string;
+        };
         return {
           content: [
             {
@@ -669,6 +827,6 @@ export function registerCreationTools(server: McpServer): void {
           ],
         };
       }
-    }
+    },
   );
 }
